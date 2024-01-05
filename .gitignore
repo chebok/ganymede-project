@@ -1,2 +1,5 @@
-/game/node_modules
-/game/dist
+/game-client/node_modules
+/game-client/dist
+
+/backend/node_modules
+/backend/dist

@@ -81,7 +81,7 @@ export class Dzenis extends Phaser.Physics.Arcade.Sprite {
     if (!knife) {
       return;
     }
-    const animParts = this.anims.currentAnim.key.split('-');
+    const animParts = this.anims.currentAnim!.key.split('-');
 
     const direction = animParts.at(-1);
 
@@ -182,14 +182,14 @@ export class Dzenis extends Phaser.Physics.Arcade.Sprite {
       this.anims.play('dzenis-moving-down', true);
       this.setVelocity(0, speed);
     } else {
-      const animName = this.anims.currentAnim.key;
+      const animName = this.anims.currentAnim!.key;
       //  Заменить на idle
       this.anims.play(animName, true)
       this.setVelocity(0, 0);
     }
 
     if (leftDown || rightDown || upDown || downDown) {
-      this.activeChest = null;
+      this.activeChest = undefined;
     }
   }
 }
@@ -211,7 +211,7 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     this.scene.physics.world.enableBody(sprite, Phaser.Physics.Arcade.DYNAMIC_BODY)
 
-    sprite.body.setSize(16, 24);
+    sprite.body!.setSize(16, 24);
 
     return sprite
   }

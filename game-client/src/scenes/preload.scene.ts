@@ -1,8 +1,20 @@
-import { Scene } from 'phaser'
+import { Scene } from 'phaser';
+import { Client } from "colyseus.js";
 
 export class PreloadScene extends Scene {
+
+  private _client!: Client;
+
   constructor() {
     super('preload')
+  }
+
+  get client() {
+    return this._client;
+  }
+
+  init() {
+    this._client = new Client("ws://localhost:2567");
   }
 
   preload() {
@@ -21,7 +33,8 @@ export class PreloadScene extends Scene {
     this.load.image('knife', 'weapons/weapon_knife.png');
   } 
 
-  create() {
+  async create() {
+    
     this.scene.start('game')
   }
 }

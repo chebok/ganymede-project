@@ -4,7 +4,7 @@ import { sceneEvents } from '../events/event-center';
 
 export class GameUIScene extends Scene {
   private hearts!: GameObjects.Group;
-  private coinsLabel: GameObjects.Text;
+  private coinsLabel!: GameObjects.Text;
 
   constructor() {
     super({ key: 'game-ui'})

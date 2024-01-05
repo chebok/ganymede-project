@@ -1,4 +1,4 @@
-import { Scene, Types, Physics, Math } from 'phaser'
+import { Scene, Types, Physics, Math, Tilemaps } from 'phaser'
 import '../characters/dzenis';
 import { debugDraw } from '../utils/debug';
 import { createSkeletonAnims } from '../anims/enemy.anims';
@@ -8,8 +8,11 @@ import { Dzenis } from '../characters/dzenis';
 import { sceneEvents } from '../events/event-center';
 import { createChestAnims } from '../anims/chest.anims';
 import { Chest } from '../items/chest';
+import { PreloadScene } from './preload.scene';
+import { Client } from 'colyseus.js';
 
 export class GameScene extends Scene {
+  private _client!: Client;
 
   private cursors!: Types.Input.Keyboard.CursorKeys;
   private dzenis!: Dzenis;
@@ -25,11 +28,23 @@ export class GameScene extends Scene {
   }
   
   preload() {
-    this.cursors = this.input.keyboard.createCursorKeys()
+    this.cursors = this.input.keyboard!.createCursorKeys()
   }
 
-  create() {
-    this.scene.run('game-ui')
+  async create() {
+    this.scene.run('game-ui');
+
+    this._client = this.scene.get<PreloadScene>('preload').client;
+    const room = await this._client.joinOrCreate('MyRoom');
+    console.log(room.sessionId);
+
+    room.onMessage('keydown', (message) => {
+      console.log(message);
+    })
+
+    this.input.keyboard?.on('keydown', (evt: KeyboardEvent) => {
+      room.send('keydown', evt.key)
+    })
 
     createCharacterAnims(this.anims, this.textures)
     createSkeletonAnims(this.anims);
@@ -38,16 +53,17 @@ export class GameScene extends Scene {
     const map = this.make.tilemap({
       key: 'dungeon'
     });
-    const tileSet = map.addTilesetImage('dungeon', 'tiles', 16, 16);
+    const tileSet = map.addTilesetImage('dungeon', 'tiles', 16, 16) as Tilemaps.Tileset;
     map.createLayer('Ground', tileSet);
-    const wallsLayer = map.createLayer('Walls', tileSet);
+    const wallsLayer = map.createLayer('Walls', tileSet) as Tilemaps.TilemapLayer;
 
     const chests = this.physics.add.staticGroup({
       classType: Chest
     })
-    const chestLayer = map.getObjectLayer('Chests');
+    const chestLayer = map.getObjectLayer('Chests') as Tilemaps.ObjectLayer;
     chestLayer.objects.forEach((chestObj) => {
-      chests.get(chestObj.x + chestObj.width * 0.5, chestObj.y - chestObj.height * 0.5, 'chest')
+      const { x, y, width, height } = chestObj;
+      chests.get(x! + width! * 0.5, y!- height! * 0.5, 'chest')
     })
 
     // const chest = this.add.sprite(64, 64, 'chest', 'chest_empty_open_anim_f0.png');
@@ -73,13 +89,13 @@ export class GameScene extends Scene {
       classType: Skeleton,
       createCallback: (go) => {
         const skeletonGo = go as Skeleton;
-        skeletonGo.body.onCollide = true;
+        skeletonGo.body!.onCollide = true;
       }
     });
 
-    const skeletonsLayer = map.getObjectLayer('Skeletons');
+    const skeletonsLayer = map.getObjectLayer('Skeletons') as Tilemaps.ObjectLayer;
     skeletonsLayer.objects.forEach((skeletonObj) => {
-      this.skeletons.get(skeletonObj.x + skeletonObj.width * 0.5, skeletonObj.y - skeletonObj.height * 0.5, 'skeleton')
+      this.skeletons.get(skeletonObj.x! + skeletonObj.width! * 0.5, skeletonObj.y! - skeletonObj.height! * 0.5, 'skeleton')
     })
     //this.skeletons.get(256, 128, 'skeleton', 'skelet_idle_anim_f0.png');
 
@@ -95,18 +111,18 @@ export class GameScene extends Scene {
   }
 
   private handlePlayerChestCollision(
-    obj1: Types.Physics.Arcade.GameObjectWithBody,
-    obj2: Types.Physics.Arcade.GameObjectWithBody
+    obj1: Types.Physics.Arcade.GameObjectWithBody | Tilemaps.Tile,
+    obj2: Types.Physics.Arcade.GameObjectWithBody | Tilemaps.Tile
   ) {
     const chest = obj2 as Chest;
     this.dzenis.setActiveChest(chest);
   }
 
   private handleKnifeSkeletonCollision(
-    obj1: Types.Physics.Arcade.GameObjectWithBody,
-    obj2: Types.Physics.Arcade.GameObjectWithBody
+    obj1: Types.Physics.Arcade.GameObjectWithBody | Tilemaps.Tile,
+    obj2: Types.Physics.Arcade.GameObjectWithBody | Tilemaps.Tile
   ) {
-    const knife = obj1;
+    const knife = obj1 as Types.Physics.Arcade.GameObjectWithBody;
     const skeleton = obj2 as Skeleton;
     this.knives.killAndHide(knife);
     this.skeletons.killAndHide(skeleton);
@@ -114,16 +130,16 @@ export class GameScene extends Scene {
   }
 
   private handleKnifeWallCollision(
-    obj1: Types.Physics.Arcade.GameObjectWithBody,
-    obj2: Types.Physics.Arcade.GameObjectWithBody
+    obj1: Types.Physics.Arcade.GameObjectWithBody | Tilemaps.Tile,
+    obj2: Types.Physics.Arcade.GameObjectWithBody | Tilemaps.Tile
   ) {
-    const knife = obj1;
+    const knife = obj1 as Types.Physics.Arcade.GameObjectWithBody;
     this.knives.killAndHide(knife);
   }
 
   private handlePlayerSkeletonCollision(
-    obj1: Types.Physics.Arcade.GameObjectWithBody,
-    obj2: Types.Physics.Arcade.GameObjectWithBody
+    obj1: Types.Physics.Arcade.GameObjectWithBody | Tilemaps.Tile,
+    obj2: Types.Physics.Arcade.GameObjectWithBody | Tilemaps.Tile
   ) {
     const skeleton = obj2 as Skeleton;
 

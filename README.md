@@ -4,10 +4,12 @@ Inspired by 16-bit RPG classics on the SNES.
 
 ## Tech Stack
 
-### Game
-  - Phaser
+### Game client
+  - Phaser3
+### Multiplayer
+  - Colyseus
 ### Back-end
-  - NodeJs
+  - NestJS
 ### Front-end
   - React
   

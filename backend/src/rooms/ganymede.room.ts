@@ -1,11 +1,11 @@
 import { Room, Client } from '@colyseus/core';
-import { MyRoomState } from './schema/MyRoomState';
+import { GanymedeState } from './schema/ganymede.state';
 
-export class MyRoom extends Room<MyRoomState> {
+export class GanymedeRoom extends Room<GanymedeState> {
   maxClients = 4;
 
   onCreate(options: any) {
-    this.setState(new MyRoomState());
+    this.setState(new GanymedeState());
 
     this.onMessage('type', (client, message) => {
       //

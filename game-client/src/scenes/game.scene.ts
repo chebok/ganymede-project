@@ -10,6 +10,7 @@ import { createChestAnims } from '../anims/chest.anims';
 import { Chest } from '../items/chest';
 import { PreloadScene } from './preload.scene';
 import { Client } from 'colyseus.js';
+import { GameServerService } from '../services/game-server.service';
 
 export class GameScene extends Scene {
   private _client!: Client;
@@ -31,20 +32,18 @@ export class GameScene extends Scene {
     this.cursors = this.input.keyboard!.createCursorKeys()
   }
 
-  async create() {
+  async create({ gameServer }: { gameServer: GameServerService }) {
+    
+
+    
+    await gameServer.join();
+
+    gameServer.onceStateChanged((state) => {
+      console.log(state);
+    })
+    
+
     this.scene.run('game-ui');
-
-    this._client = this.scene.get<PreloadScene>('preload').client;
-    const room = await this._client.joinOrCreate('MyRoom');
-    console.log(room.sessionId);
-
-    room.onMessage('keydown', (message) => {
-      console.log(message);
-    })
-
-    this.input.keyboard?.on('keydown', (evt: KeyboardEvent) => {
-      room.send('keydown', evt.key)
-    })
 
     createCharacterAnims(this.anims, this.textures)
     createSkeletonAnims(this.anims);

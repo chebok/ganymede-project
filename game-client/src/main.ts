@@ -1,7 +1,7 @@
 import { AUTO, Game, Types} from 'phaser';
-import { PreloadScene } from './scenes/preload.scene';
 import { GameScene } from './scenes/game.scene';
 import { GameUIScene } from './scenes/game-ui.scene';
+import { BootstrapScene } from './scenes/bootstrap.scene';
 
 const config: Types.Core.GameConfig = {
   type: AUTO,
@@ -15,7 +15,7 @@ const config: Types.Core.GameConfig = {
       //debug: true,
     }
   },
-  scene: [PreloadScene, GameScene, GameUIScene],
+  scene: [BootstrapScene, GameScene, GameUIScene],
   scale: {
     zoom: 2
   }

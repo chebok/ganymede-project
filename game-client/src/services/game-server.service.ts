@@ -1,14 +1,15 @@
 import { Client } from 'colyseus.js';
 import { Events } from 'phaser';
 
+const PORT = process.env.PORT || 2567;
+
 export class GameServerService {
   private client: Client;
   private events: Events.EventEmitter;
 
   constructor() {
 
-    // Хардкод
-    this.client = new Client("ws://localhost:2567");
+    this.client = new Client(`ws://localhost:${PORT}`);
     this.events = new Events.EventEmitter();
   }
 

@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import * as express from 'express';
 import * as http from 'http';
+import 'dotenv/config';
 
 import { AppModule } from './app.module';
 import { GameService } from './game.service';
